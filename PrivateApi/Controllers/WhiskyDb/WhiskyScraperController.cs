@@ -19,14 +19,20 @@ namespace PrivateApi.Controllers.WhiskyDb
         }
 
         [HttpPost("LinkScraping")]
-        public async Task<IActionResult> LinkScraping()
+        public async Task<IActionResult> LinkScraping(int scrappingLimit = 20)
         {
-            var links = await _webScraper.IndexLinks();
+            var linkIndexingResponse = await _webScraper.IndexLinks(scrappingLimit);
 
-            if(links.Count >= 1)
+            if(linkIndexingResponse.LinkCount >= 1)
             {
-                await _helper.UploadLinks(links);
-                return Ok(links);
+                linkIndexingResponse = await _helper.UploadLinks(linkIndexingResponse);
+
+                if (linkIndexingResponse == null) return new ContentResult() { StatusCode = 500, Content = "Error while updateing Links to MongoDB!"};
+
+                await _helper.UploadLinkIndexLog(linkIndexingResponse.HttpResponse());
+                Console.WriteLine(linkIndexingResponse.ToString());
+
+                return Ok(linkIndexingResponse.HttpResponse());
             }
             else
             {

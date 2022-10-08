@@ -1,5 +1,6 @@
 ﻿using PrivateApi.Data;
 using PrivateApi.Data.ObjectModels.Whisky;
+using PrivateApi.Data.ResponseModels;
 using PrivateApi.MongoDB;
 
 namespace PrivateApi.Controllers.WhiskyDb
@@ -13,19 +14,19 @@ namespace PrivateApi.Controllers.WhiskyDb
             this.mongoService = mongoService;
         }
 
-        public async Task UploadLinks(List<string> rawLinks)
+        public async Task<LinkIndexingResponse> UploadLinks(LinkIndexingResponse fetchedLinksResponse)
         {
-            if (rawLinks == null)
+            if (fetchedLinksResponse == null)
             {
                 Console.Error.WriteLine("Links could not be uploaded to mongodb");
-                return;
+                return null;
             }
 
             Console.WriteLine("Start link updating...");
 
             var skippedLinks = 0;
 
-            foreach (var link in rawLinks)
+            foreach (var link in fetchedLinksResponse.Links)
             {
                 if (await mongoService.LinkExists(link))
                 {
@@ -43,6 +44,18 @@ namespace PrivateApi.Controllers.WhiskyDb
             }
 
             Console.WriteLine($"Links successfully updated, {skippedLinks} Links were skipped.");
+
+            fetchedLinksResponse.SkippedLinks = skippedLinks;
+            fetchedLinksResponse.SavedLinks = fetchedLinksResponse.LinkCount - skippedLinks;
+            
+            return fetchedLinksResponse;
         }
+
+        #region Logs
+        public async Task<bool> UploadLinkIndexLog(LinkIndexingResponse log)
+        {
+            return await mongoService.SaveDocument(log, MongoWhiskyCollections.WhiskyLinkScrappingLogs);
+        }
+        #endregion
     }
 }

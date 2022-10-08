@@ -21,6 +21,8 @@ namespace PrivateApi.MongoDB
             {
                 case MongoWhiskyCollections.WhiskyDeLinks:
                     return _database.GetCollection<T>("whisky-de-links");
+                case MongoWhiskyCollections.WhiskyLinkScrappingLogs:
+                    return _database.GetCollection<T>("whisky-link-scrapping-logs");
                 default:
                     Console.Error.WriteLine("Collection could not be found!");
                     return null;

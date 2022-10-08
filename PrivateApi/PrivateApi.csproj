@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\ResponseModels\" />
     <Folder Include="Data\RequestModels\" />
   </ItemGroup>
 
