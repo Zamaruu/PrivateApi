@@ -50,7 +50,7 @@ namespace PrivateApi.MongoDB
         public async Task<bool> LinkExists(string Link)
         {
             var collection = GetCollection<WhiskyDetailLink>(MongoWhiskyCollections.WhiskyDeLinks);
-            var item = await collection.Find(wdl => wdl.Link.Equals(Link)).FirstOrDefaultAsync();
+            var item = await collection.Find(wdl => wdl.OriginalLink.Equals(Link)).FirstOrDefaultAsync();
 
             return item != null;
         }
