@@ -39,5 +39,15 @@ namespace PrivateApi.Controllers.WhiskyDb
                 return BadRequest("No links could be Scrapped");
             }
         }
+
+        [HttpPost("DetailScraping")]
+        public async Task<IActionResult> DetailScraping(Uri uri)
+        {
+            if (uri == null) return BadRequest();
+
+            await _webScraper.IndexDetailForUri(uri);
+
+            return Ok();
+        }
     }
 }

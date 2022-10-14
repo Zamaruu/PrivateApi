@@ -3,7 +3,7 @@ using PrivateApi.Data.ResponseModels;
 
 namespace PrivateApi.Sections.WhiskyDb
 {
-    public class WebScraper
+    public partial class WebScraper
     {
         private readonly string BaseUrl;
 
@@ -35,7 +35,7 @@ namespace PrivateApi.Sections.WhiskyDb
                     if (response != null)
                     {
                         var body = await response.Content.ReadAsStringAsync();
-                        var links = ParseHtml(body);
+                        var links = ParseLinkHtml(body);
 
                         if (links != null) scrappedLinks.AddRange(links);
                         apiPage++;
@@ -57,6 +57,13 @@ namespace PrivateApi.Sections.WhiskyDb
         }
 
 
+        public async Task IndexDetailForUri(Uri uri)
+        {
+            var response = await CallUrl(uri.ToString());
+            var body = await response.Content.ReadAsStringAsync();
+
+            var result = ParseDetailHtml(body);
+        }
 
         // Worker Methods
 
@@ -68,46 +75,5 @@ namespace PrivateApi.Sections.WhiskyDb
             return response;
         }
 
-
-
-        private List<string>? ParseHtml(string html)
-        {
-            HtmlDocument htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(html);
-
-            //var content = GetWhiskyContentSection(htmlDoc);
-            //if (content == null) return null;
-
-            var items = HtmlQueries.GetWhiskyItems(htmlDoc.DocumentNode);
-            if (items == null) return null;
-
-            List<string> links = new();
-            
-            foreach (var item in items)
-            {
-                var titleTag = item.Descendants("div")
-                    .Where(node => node.GetClasses().Contains("title"))
-                    .FirstOrDefault();
-                
-                var linkTag = titleTag.Descendants("a")
-                    .FirstOrDefault();
-
-                string hrefValue = linkTag.GetAttributeValue("href", string.Empty);
-                links.Add($"https://www.whisky.de{hrefValue}");
-                
-                Console.WriteLine($"https://www.whisky.de{hrefValue}");
-            }
-
-            return links;
-        }
-
-        private HtmlNode? GetWhiskyContentSection(HtmlDocument htmlDoc)
-        {
-            var contentSection = HtmlQueries.GetWhiskyContentSection(htmlDoc);
-            var resultContainer = HtmlQueries.GetWhiskySearchResultContainer(contentSection);
-            var contentItems = HtmlQueries.GetWhiskyResultListContainer(resultContainer);
-
-            return contentItems;
-        }
     }
 }
