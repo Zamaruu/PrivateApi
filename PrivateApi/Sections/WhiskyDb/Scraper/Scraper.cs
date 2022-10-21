@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using PrivateApi.Data.ObjectModels.Whisky;
 using PrivateApi.Data.ResponseModels;
 
 namespace PrivateApi.Sections.WhiskyDb
@@ -57,12 +58,14 @@ namespace PrivateApi.Sections.WhiskyDb
         }
 
 
-        public async Task IndexDetailForUri(Uri uri)
+        public async Task<WhiskyBottleDetail?> IndexDetailForUri(Uri uri)
         {
             var response = await CallUrl(uri.ToString());
             var body = await response.Content.ReadAsStringAsync();
 
             var result = ParseDetailHtml(body);
+
+            return result;
         }
 
         // Worker Methods

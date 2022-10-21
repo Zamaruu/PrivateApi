@@ -14,6 +14,7 @@ namespace PrivateApi.Data.ObjectModels.Whisky
 
         #region Identifier & General Information
 
+        public string Name { get; set; }
         public string BrandName { get; set; }
         public string BottleAge { get; set; }
 
@@ -37,7 +38,15 @@ namespace PrivateApi.Data.ObjectModels.Whisky
 
 
         public WhiskyBottleDetail() { }
-        public WhiskyBottleDetail(string Link, string BrandName, string BottleAge, List<string> ImageUrls, string BottleDescription, DistilleryData Distillery, WhiskyCountry Country, WhiskyType Type, int AlcoholLevel, float BottleSize)
+
+        public WhiskyBottleDetail(string Link)
+        {
+            this.Id = Guid.NewGuid().ToString();
+            this.OriginalLink = Link;
+            ScrapDate = DateTime.Now.ToLocalTime();
+        }
+
+        public WhiskyBottleDetail(string Link, string Name, string BrandName, string BottleAge, List<string> ImageUrls, string BottleDescription, DistilleryData Distillery, WhiskyCountry Country, WhiskyType Type, int AlcoholLevel, float BottleSize)
         {
             this.Id = Guid.NewGuid().ToString();
             OriginalLink = Link;

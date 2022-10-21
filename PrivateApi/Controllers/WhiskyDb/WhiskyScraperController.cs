@@ -45,9 +45,9 @@ namespace PrivateApi.Controllers.WhiskyDb
         {
             if (uri == null) return BadRequest();
 
-            await _webScraper.IndexDetailForUri(uri);
+            var result = await _webScraper.IndexDetailForUri(uri);
 
-            return Ok();
+            return Ok(result);
         }
     }
 }

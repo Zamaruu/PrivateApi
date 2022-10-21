@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using PrivateApi.Data.ObjectModels.Whisky;
 
 namespace PrivateApi.Sections.WhiskyDb
 {
@@ -37,18 +38,61 @@ namespace PrivateApi.Sections.WhiskyDb
         }
 
 
-        private string? ParseDetailHtml(string html)
+        private WhiskyBottleDetail? ParseDetailHtml(string html)
         {
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(html);
 
             var mainContentSection = htmlDoc.GetElementbyId("content-main");
-            var rawDetailContetn = mainContentSection.Descendants("div")
+            var rawDetailContent = mainContentSection.Descendants("div")
                     .Where(node => node.GetClasses().Contains("column-inner"))
                     .FirstOrDefault();
 
-            return "";
+            if (rawDetailContent == null) return null;
+
+            var bottle = BuildBottleDetailObject(rawDetailContent);
+
+            return bottle;
         }
+
+
+        #endregion
+
+        #region Detail Scraper Helper
+
+        private WhiskyBottleDetail BuildBottleDetailObject(HtmlNode detailContainer)
+        {
+            WhiskyBottleDetail whisky = new(string.Empty);
+
+            whisky.Name = GetBottleDetailName(detailContainer);
+
+            return whisky;
+        }
+        
+        /// <summary>
+        /// Reads the Heading from the Whisky HTML Doc
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns>Concated Name and Age of the Whisky</returns>
+        private string GetBottleDetailName(HtmlNode container)
+        {
+            var nameNode = container.Descendants("span")
+                    .Where(node => node.GetClasses().Contains("marke"))
+                    .FirstOrDefault();
+
+            var ageNode = container.Descendants("span")
+                    .Where(node => node.GetClasses().Contains("alterEtikett"))
+                    .FirstOrDefault();
+
+            if (nameNode == null && ageNode == null) return string.Empty;
+
+            var name = nameNode.InnerText ?? "";
+            var age = ageNode.InnerText ?? "";
+
+            return $"{name.Trim()} {age.Trim()}".Trim();
+        }
+
+
         #endregion
     }
 }
