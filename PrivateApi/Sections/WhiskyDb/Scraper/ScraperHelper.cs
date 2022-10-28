@@ -133,11 +133,9 @@ namespace PrivateApi.Sections.WhiskyDb
                    .Where(node => node.GetClasses().Contains("image-slider-elements"))
                    .FirstOrDefault();
 
-            var imageNodes = imageListNode.Descendants(div).Where(node => node.GetClasses().Contains("image-slider-element"));
-
-
             if (imageListNode == null) return new();
 
+            var imageNodes = imageListNode.Descendants(div).Where(node => node.GetClasses().Contains("image-slider-element"));
 
             foreach (var imageElement in imageNodes)
             {

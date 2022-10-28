@@ -9,6 +9,7 @@ namespace PrivateApi.Data
     public enum MongoWhiskyCollections
     {
         WhiskyDeLinks,
-        WhiskyLinkScrappingLogs
+        WhiskyLinkScrappingLogs,
+        WhiskyBottles
     }
 }

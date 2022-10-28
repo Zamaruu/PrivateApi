@@ -46,8 +46,19 @@ namespace PrivateApi.Controllers.WhiskyDb
             if (uri == null) return BadRequest();
 
             var result = await _webScraper.IndexDetailForUri(uri);
+            
+            if(result == null) return new ContentResult() { StatusCode = 500, Content = "Error while scarpping html file" };
 
-            return Ok(result);
+            result.OriginalLink = uri.ToString();
+
+            var uploaded = await _helper.UploadBottle(result);
+
+            if (uploaded)
+            {
+                return Ok(result);
+            }
+
+            return new ContentResult() { StatusCode = 500, Content = "Error while updateing Bottle to MongoDB!" };
         }
     }
 }

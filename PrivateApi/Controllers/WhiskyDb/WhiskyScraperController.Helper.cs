@@ -51,6 +51,29 @@ namespace PrivateApi.Controllers.WhiskyDb
             return fetchedLinksResponse;
         }
 
+        public async Task<bool> UploadBottle(WhiskyBottleDetail bottle)
+        {
+            if (bottle == null)
+            {
+                Console.Error.WriteLine("Bottle could not be uploaded to mongodb");
+                return false;
+            }
+
+            if(await mongoService.BottleExists(bottle.OriginalLink))
+            {
+                return false;
+            }
+
+            var result = await mongoService.SaveDocument(bottle, MongoWhiskyCollections.WhiskyBottles);
+
+            if (!result)
+            {
+                Console.Error.WriteLine($"{bottle.Name} could not be uploaded to mongodb");
+            }
+
+            return true;
+        }
+
         #region Logs
         public async Task<bool> UploadLinkIndexLog(LinkIndexingResponse log)
         {
