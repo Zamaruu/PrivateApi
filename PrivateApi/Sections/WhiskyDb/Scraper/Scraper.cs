@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using PrivateApi.Data.ObjectModels.Whisky;
 using PrivateApi.Data.ResponseModels;
+using System.Text;
 
 namespace PrivateApi.Sections.WhiskyDb
 {
@@ -61,7 +62,9 @@ namespace PrivateApi.Sections.WhiskyDb
         public async Task<WhiskyBottleDetail?> IndexDetailForUri(Uri uri)
         {
             var response = await CallUrl(uri.ToString());
-            var body = await response.Content.ReadAsStringAsync();
+            
+            var buff = await response.Content.ReadAsByteArrayAsync();
+            var body = Encoding.GetEncoding("utf-8").GetString(buff);
 
             var result = ParseDetailHtml(body);
 
@@ -77,6 +80,5 @@ namespace PrivateApi.Sections.WhiskyDb
             var response = await client.GetAsync(fullUrl);
             return response;
         }
-
     }
 }

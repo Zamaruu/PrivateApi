@@ -5,6 +5,9 @@ namespace PrivateApi.Sections.WhiskyDb
 {
     public partial class WebScraper
     {
+        private const string div = "div";
+        private const string span = "span";
+
         #region HTML Parser
         private List<string>? ParseLinkHtml(string html)
         {
@@ -21,7 +24,7 @@ namespace PrivateApi.Sections.WhiskyDb
 
             foreach (var item in items)
             {
-                var titleTag = item.Descendants("div")
+                var titleTag = item.Descendants(div)
                     .Where(node => node.GetClasses().Contains("title"))
                     .FirstOrDefault();
 
@@ -44,7 +47,7 @@ namespace PrivateApi.Sections.WhiskyDb
             htmlDoc.LoadHtml(html);
 
             var mainContentSection = htmlDoc.GetElementbyId("content-main");
-            var rawDetailContent = mainContentSection.Descendants("div")
+            var rawDetailContent = mainContentSection.Descendants(div)
                     .Where(node => node.GetClasses().Contains("column-inner"))
                     .FirstOrDefault();
 
@@ -65,6 +68,7 @@ namespace PrivateApi.Sections.WhiskyDb
             WhiskyBottleDetail whisky = new(string.Empty);
 
             whisky.Name = GetBottleDetailName(detailContainer);
+            whisky.BottleDescription = GetBottleDescription(detailContainer);
 
             return whisky;
         }
@@ -76,22 +80,36 @@ namespace PrivateApi.Sections.WhiskyDb
         /// <returns>Concated Name and Age of the Whisky</returns>
         private string GetBottleDetailName(HtmlNode container)
         {
-            var nameNode = container.Descendants("span")
+            var nameNode = container.Descendants(span)
                     .Where(node => node.GetClasses().Contains("marke"))
                     .FirstOrDefault();
 
-            var ageNode = container.Descendants("span")
+            var ageNode = container.Descendants(span)
                     .Where(node => node.GetClasses().Contains("alterEtikett"))
                     .FirstOrDefault();
 
             if (nameNode == null && ageNode == null) return string.Empty;
 
-            var name = nameNode.InnerText ?? "";
-            var age = ageNode.InnerText ?? "";
+            var name = nameNode.InnerText ?? string.Empty;
+            var age = ageNode.InnerText ?? string.Empty;
 
             return $"{name.Trim()} {age.Trim()}".Trim();
         }
 
+
+        private string GetBottleDescription(HtmlNode container)
+        {
+            var descriptionNode = container.Descendants(div)
+                    .Where(node => node.GetClasses().Contains("description") && node.GetClasses().Contains("visible-desktop"))
+                    .FirstOrDefault();
+
+            if (descriptionNode == null) return string.Empty;
+
+            var rawDescription = descriptionNode.InnerText ?? string.Empty;
+            var description = CleanUpScrapedString(rawDescription);
+
+            return description;
+        }
 
         #endregion
     }
