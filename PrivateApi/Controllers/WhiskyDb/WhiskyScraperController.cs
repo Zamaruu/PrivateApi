@@ -60,5 +60,14 @@ namespace PrivateApi.Controllers.WhiskyDb
 
             return new ContentResult() { StatusCode = 500, Content = "Error while updateing Bottle to MongoDB!" };
         }
+    
+        [HttpGet("Bottles")]
+        public async Task<IActionResult> GetAllBottles()
+        {
+            var result = await _helper.GetWhiskyBottles();
+
+            if (result != null) return Ok(result);
+            return BadRequest();
+        } 
     }
 }

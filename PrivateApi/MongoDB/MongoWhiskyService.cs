@@ -49,6 +49,24 @@ namespace PrivateApi.MongoDB
 
         }
 
+        public async Task<dynamic> GetDocuments<T>(MongoWhiskyCollections type)
+        {
+            var collection = GetCollection<T>(type);
+
+            try
+            {
+                var result = collection.AsQueryable().ToList();
+                return result;
+
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.Message);
+                return null;
+            }
+
+        }
+
         public async Task<bool> LinkExists(string Link)
         {
             var collection = GetCollection<WhiskyDetailLink>(MongoWhiskyCollections.WhiskyDeLinks);

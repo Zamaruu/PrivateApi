@@ -80,5 +80,15 @@ namespace PrivateApi.Controllers.WhiskyDb
             return await mongoService.SaveDocument(log, MongoWhiskyCollections.WhiskyLinkScrappingLogs);
         }
         #endregion
+
+        #region Getter
+
+        public async Task<List<WhiskyBottleDetail>> GetWhiskyBottles()
+        {
+            var bottles = await mongoService.GetDocuments<WhiskyBottleDetail>(MongoWhiskyCollections.WhiskyBottles);
+            return bottles;
+        }
+
+        #endregion
     }
 }
