@@ -20,7 +20,7 @@ namespace PrivateApi.Data.ObjectModels.Whisky
 
         // TODO: Bottle Reating
 
-        public List<string> ImageUrls { get; set; }
+        public WhiskyImage Images { get; set; }
 
         public string BottleDescription { get; set; }
 
@@ -46,7 +46,7 @@ namespace PrivateApi.Data.ObjectModels.Whisky
             ScrapDate = DateTime.Now.ToLocalTime();
         }
 
-        public WhiskyBottleDetail(string Link, string Name, string BrandName, string BottleAge, List<string> ImageUrls, string BottleDescription, DistilleryData Distillery, WhiskyCountry Country, WhiskyType Type, int AlcoholLevel, float BottleSize)
+        public WhiskyBottleDetail(string Link, string Name, string BrandName, string BottleAge, List<WhiskyImage> Images, string BottleDescription, DistilleryData Distillery, WhiskyCountry Country, WhiskyType Type, int AlcoholLevel, float BottleSize)
         {
             this.Id = Guid.NewGuid().ToString();
             OriginalLink = Link;

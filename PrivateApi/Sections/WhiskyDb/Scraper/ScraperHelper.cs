@@ -1,4 +1,6 @@
 ﻿using HtmlAgilityPack;
+using PrivateApi.Data.ObjectModels;
+using PrivateApi.Data.ObjectModels.SubModels;
 using PrivateApi.Data.ObjectModels.Whisky;
 
 namespace PrivateApi.Sections.WhiskyDb
@@ -7,6 +9,7 @@ namespace PrivateApi.Sections.WhiskyDb
     {
         private const string div = "div";
         private const string span = "span";
+        private const string baseUrl = "https://www.whisky.de";
 
         #region HTML Parser
         private List<string>? ParseLinkHtml(string html)
@@ -69,6 +72,7 @@ namespace PrivateApi.Sections.WhiskyDb
 
             whisky.Name = GetBottleDetailName(detailContainer);
             whisky.BottleDescription = GetBottleDescription(detailContainer);
+            whisky.Images = GetBottleImageUrls(detailContainer);
 
             return whisky;
         }
@@ -97,6 +101,11 @@ namespace PrivateApi.Sections.WhiskyDb
         }
 
 
+        /// <summary>
+        /// Reads the Description from the Whisky HTML Doc
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns>Cleaned up Description of the Whisky Bottle</returns>
         private string GetBottleDescription(HtmlNode container)
         {
             var descriptionNode = container.Descendants(div)
@@ -109,6 +118,69 @@ namespace PrivateApi.Sections.WhiskyDb
             var description = CleanUpScrapedString(rawDescription);
 
             return description;
+        }
+
+        /// <summary>
+        /// Reads the Images and their Urls from the Whisky HTML Doc
+        /// </summary>
+        /// <param name="container"></param>
+        /// <returns>List of Image Urls</returns>
+        private WhiskyImage GetBottleImageUrls(HtmlNode container)
+        {
+            var whiskyImages = new WhiskyImage();
+
+            var imageListNode = container.Descendants(div)
+                   .Where(node => node.GetClasses().Contains("image-slider-elements"))
+                   .FirstOrDefault();
+
+            var imageNodes = imageListNode.Descendants(div).Where(node => node.GetClasses().Contains("image-slider-element"));
+
+
+            if (imageListNode == null) return new();
+
+
+            foreach (var imageElement in imageNodes)
+            {
+                var teaserImage = GetBottleTeaserImage(imageElement);
+                var fullImage = GetBottleImage(imageElement);
+
+                if(teaserImage != null) whiskyImages.TeaserImages.Add(teaserImage);
+                if(fullImage != null) whiskyImages.Images.Add(fullImage);
+            }
+
+            return whiskyImages;
+        }
+
+        private Image? GetBottleTeaserImage(HtmlNode container)
+        {
+            var imageNode = container.Descendants("img").FirstOrDefault();
+
+            if(imageNode == null) return null;
+
+            string hrefValue = imageNode.GetAttributeValue("src", string.Empty);
+            string title = imageNode.GetAttributeValue("title", string.Empty);
+            string widthStr = imageNode.GetAttributeValue("width", string.Empty);
+            string heightStr = imageNode.GetAttributeValue("height", string.Empty);
+
+            var image = new Image(title, $"{baseUrl}{hrefValue}", int.Parse(widthStr), int.Parse(heightStr));
+
+            return image;
+        }
+
+        private Image? GetBottleImage(HtmlNode container)
+        {
+            var fullImageContainer = container.Descendants(div)
+                    .Where(node => node.GetClasses().Contains("zoomable"))
+                   .FirstOrDefault();
+
+            if (fullImageContainer == null) return null;
+
+            string hrefValue = fullImageContainer.GetAttributeValue("data-zoom-image", string.Empty);
+            hrefValue = $"{baseUrl}{hrefValue}";
+
+            var image = new Image("Zoom Image", hrefValue);
+
+            return image;
         }
 
         #endregion
