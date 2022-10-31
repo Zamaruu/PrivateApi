@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using PrivateApi.MongoDB;
 using PrivateApi.Sections.WhiskyDb;
 
@@ -22,7 +23,25 @@ builder.Services.AddSingleton<WebScraper>(new WebScraper(whiskyDeUrl));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Private API", Version = "v1" });
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+            //.WithOrigins("http://localhost:52555/", "http://mywebsite.com")
+            .SetIsOriginAllowed(origin => true)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+        });
+});
+
 
 var app = builder.Build();
 
@@ -34,7 +53,9 @@ var app = builder.Build();
 //}
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PrivateApi v1"));
+
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
