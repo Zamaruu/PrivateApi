@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PrivateApi.Data.ObjectModels.Whisky;
 using PrivateApi.MongoDB;
 using PrivateApi.Sections.WhiskyDb;
 
@@ -59,6 +61,46 @@ namespace PrivateApi.Controllers.WhiskyDb
             }
 
             return new ContentResult() { StatusCode = 500, Content = "Error while updateing Bottle to MongoDB!" };
+        }
+
+        [HttpPost("ScrapBottles")]
+        public async Task<IActionResult> ScrapWhiskyBottlesFromLinks()
+        {
+            var whiskyLinks = await _helper.GetWhiskyDetailLinks();
+            var scrappedBottles = new List<WhiskyBottleDetail>();
+            var savedBottles = 0;
+
+            foreach (var link in whiskyLinks)
+            {
+                var uri = new Uri(link.OriginalLink);
+                var result = await _webScraper.IndexDetailForUri(uri);
+
+                if (result != null)
+                {
+                    scrappedBottles.Add(result);
+                    Console.WriteLine($"{uri} was successfully scrapped!");
+                }
+            }
+
+            Console.WriteLine("--------------------------------------------");
+            Console.WriteLine($"{scrappedBottles.Count} Whisky Bottles were scraped and will now be saved!");
+            Console.WriteLine("--------------------------------------------");
+
+            foreach (var bottle in scrappedBottles)
+            {
+                var uploaded = await _helper.UploadBottle(bottle);
+                if (uploaded)
+                {
+                    savedBottles++;
+                    Console.WriteLine($"{bottle.OriginalLink} was successfully saved to MongoDB!");
+                }
+            }
+
+            Console.WriteLine("--------------------------------------------");
+            Console.WriteLine($"{scrappedBottles.Count} Whisky Bottles were scraped and a total of {savedBottles} Bottles were Saved to MongoDB!");
+            Console.WriteLine("--------------------------------------------");
+
+            return Ok(scrappedBottles);
         }
     
         [HttpGet("Bottles")]

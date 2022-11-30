@@ -160,7 +160,10 @@ namespace PrivateApi.Sections.WhiskyDb
             string widthStr = imageNode.GetAttributeValue("width", string.Empty);
             string heightStr = imageNode.GetAttributeValue("height", string.Empty);
 
-            var image = new Image(title, $"{baseUrl}{hrefValue}", int.Parse(widthStr), int.Parse(heightStr));
+            var wasWidthParsed = int.TryParse(widthStr, out int width);
+            var wasHeightParsed = int.TryParse(heightStr, out int height);
+
+            var image = new Image(title, $"{baseUrl}{hrefValue}", width , height);
 
             return image;
         }

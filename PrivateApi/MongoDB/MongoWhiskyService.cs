@@ -75,10 +75,10 @@ namespace PrivateApi.MongoDB
             return item != null;
         }
 
-        public async Task<bool> BottleExists(string Link)
+        public async Task<bool> BottleExists(string name)
         {
             var collection = GetCollection<WhiskyBottleDetail>(MongoWhiskyCollections.WhiskyBottles);
-            var item = await collection.Find(wbd => wbd.OriginalLink.Equals(Link)).FirstOrDefaultAsync();
+            var item = await collection.Find(wbd => wbd.Name.Equals(name)).FirstOrDefaultAsync();
 
             return item != null;
         }

@@ -59,8 +59,10 @@ namespace PrivateApi.Controllers.WhiskyDb
                 return false;
             }
 
-            if(await mongoService.BottleExists(bottle.OriginalLink))
+            var bottleExists = await mongoService.BottleExists(bottle.Name);
+            if (bottleExists)
             {
+                Console.Error.WriteLine("Bottle could not be uploaded to mongodb because it already exists.");
                 return false;
             }
 
@@ -87,6 +89,12 @@ namespace PrivateApi.Controllers.WhiskyDb
         {
             var bottles = await mongoService.GetDocuments<WhiskyBottleDetail>(MongoWhiskyCollections.WhiskyBottles);
             return bottles;
+        }
+
+        public async Task<List<WhiskyDetailLink>> GetWhiskyDetailLinks()
+        {
+            var links = await mongoService.GetDocuments<WhiskyDetailLink>(MongoWhiskyCollections.WhiskyDeLinks);
+            return links;
         }
 
         #endregion
