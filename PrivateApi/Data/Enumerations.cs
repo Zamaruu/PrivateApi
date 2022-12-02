@@ -13,4 +13,9 @@ namespace PrivateApi.Data
         WhiskyBottleScrappingLogs,
         WhiskyBottles
     }
+
+    public enum MongoAdminCollections
+    {
+        AdminLogs
+    }
 }

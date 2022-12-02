@@ -15,6 +15,7 @@ var mongoSettings = builder.Configuration.GetSection("MongoDBSettings");
 builder.Services.Configure<MongoConnectionSettings>(mongoSettings);
 builder.Services.AddSingleton<IMongoConnectionSettings>(sp => sp.GetRequiredService<IOptions<MongoConnectionSettings>>().Value);
 builder.Services.AddSingleton<MongoWhiskyService>();
+builder.Services.AddSingleton<MongoAdminService>();
 
 var whiskyDeUrl = builder.Configuration.GetSection("ScrapingUrls")["WhiskyDe"];
 builder.Services.AddSingleton<WebScraper>(new WebScraper(whiskyDeUrl));

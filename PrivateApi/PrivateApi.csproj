@@ -18,6 +18,10 @@
 
   <ItemGroup>
     <Folder Include="Data\RequestModels\" />
+    <Folder Include="Controllers\Admin\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Controllers\Admin\" />
+  </ItemGroup>
 </Project>

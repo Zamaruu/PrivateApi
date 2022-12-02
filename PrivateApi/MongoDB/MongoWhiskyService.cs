@@ -12,7 +12,7 @@ namespace PrivateApi.MongoDB
         public MongoWhiskyService(IMongoConnectionSettings settings)
         {
             _client = new MongoClient(settings.ConnectionString);
-            _database = _client.GetDatabase(settings.DatabaseName);
+            _database = _client.GetDatabase(settings.WhiskyDatabaseName);
         }
 
         private IMongoCollection<T> GetCollection<T>(MongoWhiskyCollections collection)
