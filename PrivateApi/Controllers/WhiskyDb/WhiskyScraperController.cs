@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PrivateApi.Data.ObjectModels.Whisky;
+using PrivateApi.Data.ResponseModels;
 using PrivateApi.MongoDB;
 using PrivateApi.Sections.WhiskyDb;
 
@@ -69,39 +70,59 @@ namespace PrivateApi.Controllers.WhiskyDb
             var whiskyLinks = await _helper.GetWhiskyDetailLinks();
             var scrappedBottles = new List<WhiskyBottleDetail>();
 
-            var savedBottles = 0;
+            var scrappedBottlesCount = 0;
+            var savedBottlesCount = 0;
 
-            foreach (var link in whiskyLinks)
+            var pagedLinks = new List<WhiskyDetailLink>();
+            var linkPage = 0;
+
+            do
             {
-                var uri = new Uri(link.OriginalLink);
-                var result = await _webScraper.IndexDetailForUri(uri);
+                pagedLinks = _helper.GetPage<WhiskyDetailLink>(whiskyLinks, linkPage).ToList();
 
-                if (result != null)
+                foreach (var link in pagedLinks)
                 {
-                    scrappedBottles.Add(result);
-                    Console.WriteLine($"{uri} was successfully scrapped!");
+                    var uri = new Uri(link.OriginalLink);
+                    var result = await _webScraper.IndexDetailForUri(uri);
+
+                    if (result != null)
+                    {
+                        scrappedBottles.Add(result);
+                        scrappedBottlesCount++;
+                        Console.WriteLine($"{scrappedBottlesCount}. \t{uri} was successfully scrapped!");
+                    }
                 }
-            }
 
-            Console.WriteLine("--------------------------------------------");
-            Console.WriteLine($"{scrappedBottles.Count} Whisky Bottles were scraped and will now be saved!");
-            Console.WriteLine("--------------------------------------------");
-
-            foreach (var bottle in scrappedBottles)
-            {
-                var uploaded = await _helper.UploadBottle(bottle);
-                if (uploaded)
+             
+                foreach (var bottle in scrappedBottles)
                 {
-                    savedBottles++;
-                    Console.WriteLine($"{bottle.OriginalLink} was successfully saved to MongoDB!");
+                    var uploaded = await _helper.UploadBottle(bottle);
+                    if (uploaded)
+                    {
+                        savedBottlesCount++;
+                        Console.WriteLine($"{savedBottlesCount}. \t{bottle.OriginalLink} was successfully saved to MongoDB!");
+                    }
                 }
-            }
 
-            Console.WriteLine("--------------------------------------------");
-            Console.WriteLine($"{scrappedBottles.Count} Whisky Bottles were scraped and a total of {savedBottles} Bottles were Saved to MongoDB!");
+                if(scrappedBottles.Count >= 1)
+                {
+                    Console.WriteLine("--------------------------------------------");
+                    Console.WriteLine($"Set completeted, jumping to next Page. {scrappedBottles.Count} Whisky Bottles were scraped.");
+                    Console.WriteLine("--------------------------------------------");
+                }
+
+                // Reset scrapped bottles for better memeory management and get next page
+                scrappedBottles.Clear();
+                linkPage++;       
+            } while (pagedLinks.Count >= 1);
+
+            Console.WriteLine($"{scrappedBottlesCount} Whisky Bottles were scraped and a total of {savedBottlesCount} Bottles were Saved to MongoDB!");
             Console.WriteLine("--------------------------------------------");
 
-            return Ok(scrappedBottles);
+            var bottleScrappingResponse = new BottleScrappingResponse(scrappedBottlesCount, scrappedBottlesCount - savedBottlesCount, savedBottlesCount);
+            await _helper.UploadWhiskyScrappingLog(bottleScrappingResponse);
+
+            return Ok(bottleScrappingResponse);
         }
     
         [HttpGet("Bottles")]
@@ -111,8 +132,6 @@ namespace PrivateApi.Controllers.WhiskyDb
 
             if (result != null) return Ok(result);
             return BadRequest();
-        } 
-
-        // test
+        }
     }
 }

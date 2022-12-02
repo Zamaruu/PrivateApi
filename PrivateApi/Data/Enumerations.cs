@@ -10,6 +10,7 @@ namespace PrivateApi.Data
     {
         WhiskyDeLinks,
         WhiskyLinkScrappingLogs,
+        WhiskyBottleScrappingLogs,
         WhiskyBottles
     }
 }

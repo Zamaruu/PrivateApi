@@ -14,6 +14,18 @@ namespace PrivateApi.Controllers.WhiskyDb
             this.mongoService = mongoService;
         }
 
+        /// <summary>
+        /// Pageinate the whiskybottle list to get better memory management
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public IList<T> GetPage<T>(IList<T> list, int page, int pageSize = 20)
+        {
+            return list.Skip(page * pageSize).Take(pageSize).ToList();
+        }
+
         public async Task<LinkIndexingResponse> UploadLinks(LinkIndexingResponse fetchedLinksResponse)
         {
             if (fetchedLinksResponse == null)
@@ -80,6 +92,11 @@ namespace PrivateApi.Controllers.WhiskyDb
         public async Task<bool> UploadLinkIndexLog(LinkIndexingResponse log)
         {
             return await mongoService.SaveDocument(log, MongoWhiskyCollections.WhiskyLinkScrappingLogs);
+        }
+
+        public async Task<bool> UploadWhiskyScrappingLog(BottleScrappingResponse log)
+        {
+            return await mongoService.SaveDocument(log, MongoWhiskyCollections.WhiskyBottleScrappingLogs);
         }
         #endregion
 

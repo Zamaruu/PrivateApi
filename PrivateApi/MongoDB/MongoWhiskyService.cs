@@ -23,6 +23,8 @@ namespace PrivateApi.MongoDB
                     return _database.GetCollection<T>("whisky-de-links");
                 case MongoWhiskyCollections.WhiskyLinkScrappingLogs:
                     return _database.GetCollection<T>("whisky-link-scrapping-logs");
+                case MongoWhiskyCollections.WhiskyBottleScrappingLogs:
+                    return _database.GetCollection<T>("whisky-bottle-scrapping-logs");
                 case MongoWhiskyCollections.WhiskyBottles:
                     return _database.GetCollection<T>("whisky-bottles");
                 default:
