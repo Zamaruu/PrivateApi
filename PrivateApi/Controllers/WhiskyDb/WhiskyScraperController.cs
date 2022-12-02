@@ -68,6 +68,7 @@ namespace PrivateApi.Controllers.WhiskyDb
         {
             var whiskyLinks = await _helper.GetWhiskyDetailLinks();
             var scrappedBottles = new List<WhiskyBottleDetail>();
+
             var savedBottles = 0;
 
             foreach (var link in whiskyLinks)

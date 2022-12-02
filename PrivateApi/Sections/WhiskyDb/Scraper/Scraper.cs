@@ -68,6 +68,11 @@ namespace PrivateApi.Sections.WhiskyDb
 
             var result = ParseDetailHtml(body);
 
+            if(result != null)
+            {
+                result.OriginalLink = uri.ToString();
+            }
+
             return result;
         }
 

@@ -59,7 +59,7 @@ namespace PrivateApi.Controllers.WhiskyDb
                 return false;
             }
 
-            var bottleExists = await mongoService.BottleExists(bottle.Name);
+            var bottleExists = await mongoService.BottleExists(bottle.OriginalLink);
             if (bottleExists)
             {
                 Console.Error.WriteLine("Bottle could not be uploaded to mongodb because it already exists.");
